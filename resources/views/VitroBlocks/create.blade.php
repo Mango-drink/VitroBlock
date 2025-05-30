@@ -47,13 +47,5 @@
                 <input type="file" id="imagen_url" name="imagen_url" value="">
                 <br/>
 
-                <label for="categoria_id">Categoría:</label>
-            <select name="categoria_id" id="categoria_id" required>
-                @foreach($categorias as $categoria)
-                    <option value="{{ $categoria->id }}">{{ $categoria->nombre }}</option>
-                @endforeach
-            </select>
-            <br/>
-
             <input type="submit" value="Agregar">
     </form>

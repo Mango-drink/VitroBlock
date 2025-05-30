@@ -4,6 +4,9 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\VitroBlocksController;
+use App\Http\Controllers\CategoriaController;
+use App\Http\Controllers\OrigenController;
+use App\Http\Controllers\ProductoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,6 +23,9 @@ use App\Http\Controllers\VitroBlocksController;
 });*/
 
 Route::resource('VitroBlocks', VitroBlocksController::class);
+Route::resource('categorias', CategoriaController::class);
+Route::resource('origenes', OrigenController::class);
+Route::resource('productos', ProductoController::class);
 
 
 /*Route::get('/VitroBlocks/index', [VitroBlocksController::class, 'index']); // ver listado

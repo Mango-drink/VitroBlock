@@ -13,9 +13,8 @@ return new class extends Migration
     {
         Schema::create('origenes', function (Blueprint $table) {
             $table->id();
-            $table->string('pais');
+            $table->timestamps();
         });
-
     }
 
     /**
