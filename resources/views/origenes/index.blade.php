@@ -7,18 +7,18 @@
     <thead>
         <tr>
             <th>ID</th>
-            <th>Nombre</th>
+            <th>País</th>
             <th>Acciones</th>
         </tr>
     </thead>
     <tbody>
         @foreach ($origenes as $origen)
         <tr>
-            <td>{{ $origen->origen_id }}</td>
-            <td>{{ $origen->nombre }}</td>
-           >
-                <a href="{{ route('origenes.edit', $origen->origen_id) }}">Editar</a>
-                <form action="{{ route('origenes.destroy', $origen->origen_id) }}" method="POST">
+            <td>{{ $origen->id }}</td>
+            <td>{{ $origen->pais }}</td>
+            <td>
+                <a href="{{ route('origenes.edit', $origen->id) }}">Editar</a>
+                <form action="{{ route('origenes.destroy', $origen->id) }}" method="POST" style="display:inline;">
                     @csrf
                     @method('DELETE')
                     <button type="submit">Eliminar</button>
@@ -28,35 +28,4 @@
         @endforeach
     </tbody>
 </table>
-@endsection
-``.blade.php`
-
-Ambos formularios son similares. Aquí tienes el de **crear**:
-```blade
-@extends('layouts.app')
-
-@section('content')
-<h1>Crear Origen</h1>
-<form action="{{ route('origenes.store') }}" method="POST">
-    @csrf
-    <label for="nombre">Nombre:</label>
-    <input type="text" name="nombre" id="nombre">
-    <!-- Agrega más campos aquí -->
-    <button type="submit">Guardar</button>
-</form>
-@endsection
-
-
-```blade
-@extends('layouts.app')
-
-@section('content')
-<h1>Crear Origen</h1>
-<form action="{{ route('origenes.store') }}" method="POST">
-    @csrf
-    <label for="nombre">Nombre:</label>
-    <input type="text" name="nombre" id="nombre">
-    <!-- Agrega más campos aquí -->
-    <button type="submit">Guardar</button>
-</form>
 @endsection

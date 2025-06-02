@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\producto;
 use Illuminate\Http\Request;
 
 class ProductoController extends Controller
@@ -12,6 +13,7 @@ class ProductoController extends Controller
     public function index()
     {
         //
+        return view('productos.index');
     }
 
     /**
@@ -20,6 +22,7 @@ class ProductoController extends Controller
     public function create()
     {
         //
+        return view('productos.create');
     }
 
     /**
@@ -27,7 +30,31 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'codigo' => 'required|string|max:255',
+            'nombre' => 'required|string|max:255',
+            'descripcion' => 'nullable|string',
+            'diseno' => 'nullable|string',
+            'color' => 'nullable|string',
+            'dimensiones' => 'nullable|string',
+            'piezas_por_caja' => 'required|integer|min:1',
+            'm2_por_caja' => 'required|numeric|min:0',
+            'stock_actual' => 'required|integer|min:0',
+            'precio' => 'required|numeric|min:0',
+            'imagen_url' => 'nullable|image|max:2048',
+            'categoria_id' => 'required|exists:categorias,id',
+        ]);
+
+        // Guardar imagen si se subió
+        if ($request->hasFile('imagen_url')) {
+            // tu lógica aquí
+        }
+
+        // Crear el producto
+        $producto = producto::create($validated);
+
+        // Puedes redirigir o devolver JSON
+        return redirect()->route('productos.create')->with('success', 'Producto creado correctamente.');
     }
 
     /**

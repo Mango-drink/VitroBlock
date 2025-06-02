@@ -4,6 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
+use Inertia\Inertia;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,8 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        Inertia::setRootView('app');
+
         Schema ::defaultStringLength(191);//Migraciones a la base de datos
     }
 }
