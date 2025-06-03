@@ -1,9 +1,12 @@
 <!DOCTYPE html>
-<html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 <head>
-    @inertiaHead
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+   app.name', 'Laravel') }}</title>
+    @vite('resources/js/app.js')
 </head>
-<body>
+<body class="font-sans antialiased">
     @inertia
 </body>
 </html>

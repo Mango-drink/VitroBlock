@@ -22,9 +22,17 @@ class AppServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
-        Inertia::setRootView('app');
 
-        Schema ::defaultStringLength(191);//Migraciones a la base de datos
+        Inertia::share([
+            'appName' => config('app.name'),
+            'flash' => fn () => [
+                'success' => session('success'),
+                'error' => session('error'),
+            ],
+        ]);
+
+
+        Schema::defaultStringLength(191);//Migraciones a la base de datos
     }
 }
 

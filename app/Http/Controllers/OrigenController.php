@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\origen; // Assuming you have an Origen model
+use App\Models\Origen; // Assuming you have an Origen model
 use Inertia\Inertia;
 
 class OrigenController extends Controller
@@ -13,8 +13,9 @@ class OrigenController extends Controller
      */
     public function index()
     {
-        $origenes = origen::all();
+        $origenes = Origen::all();
         return Inertia::render('origenes.index', compact('origenes'));
+        //return view('origenes.index');
     }
 
     /**
@@ -23,7 +24,7 @@ class OrigenController extends Controller
     public function create()
     {
         //
-        return Inertia::render('origenes.create');
+        return Inertia::render('origenes/Create');
     }
 
     /**
@@ -35,7 +36,7 @@ class OrigenController extends Controller
         $validated = $request->validate([
             'pais' => 'required|string|max:255'
         ]);
-        origen::create($request->all());
+        Origen::create($request->all());
         return redirect()->route('origenes.index')->with('success', 'Origen creado correctamente.');
     }
 
@@ -50,17 +51,17 @@ class OrigenController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
-        return Inertia::render('origenes.edit',compact('origen'));
+        $origen = Origen::findOrFail($id);
+        return Inertia::render('origenes.Edit', compact('origen'));
     }
 
     /**
      * Update the specified resource in storage.
      */
 
-    public function update(Request $request, origen $origen)
+    public function update(Request $request, Origen $origen)
     {
         $request->validate([
         'pais' => 'required|string|max:255',
@@ -71,7 +72,7 @@ class OrigenController extends Controller
         return redirect()->route('origenes.index')->with('success', 'Origen actualizado correctamente.');
     }
 
-    public function destroy(origen $origen)
+    public function destroy(Origen $origen)
     {
         $origen->delete();
         return redirect()->route('origenes.index')->with('success', 'Origen eliminado correctamente.');

@@ -26,13 +26,8 @@ Route::resource('VitroBlocks', VitroBlocksController::class);
 Route::resource('categorias', CategoriaController::class);
 Route::resource('origenes', OrigenController::class);
 Route::resource('productos', ProductoController::class);
-
-
-/*Route::get('/VitroBlocks/index', [VitroBlocksController::class, 'index']); // ver listado
-Route::get('/VitroBlocks/create', [VitroBlocksController::class, 'create']); // formulario crear
-Route::get('/VitroBlocks/edit', [VitroBlocksController::class, 'edit']); // formulario editar
-Route::post('/VitroBlocks', [VitroBlocksController::class, 'store'])->name('VitroBlocks.store'); // guardar
-*/
+//Route::get('/origenes/Create', [OrigenController::class, 'Create'])->name('origenes.create'); // formulario crear
+//Route::post('/origenes', [OrigenController::class, 'store'])->name('origenes.store'); // guardar
 
 
 
