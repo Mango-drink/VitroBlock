@@ -12,8 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('origenes', function (Blueprint $table) {
-            $table->id();
-            $table->string('pais'); // <-- Agrega esta línea
+            $table->bigIncrements('origen_id');
+            $table->string('pais',255); // <-- Agrega esta línea
             $table->timestamps();
         });
     }

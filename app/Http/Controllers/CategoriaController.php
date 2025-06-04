@@ -1,8 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
+
 use App\Models\Categoria;
 use Illuminate\Http\Request;
+use Inertia\Inertia; // ← Asegúrate de incluir esto
 
 class CategoriaController extends Controller
 {
@@ -12,70 +14,47 @@ class CategoriaController extends Controller
     public function index()
     {
         $categorias = Categoria::all();
-        return view('categorias.index', compact('categorias'));
+        return Inertia::render('categorias/Index', compact('categorias'));
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        return view('categorias.create');
+        return Inertia::render('categorias/Create');
     }
-
-    /**
-     * Store a newly created resource in storage.
-     */
 
     public function store(Request $request)
     {
-    $request->validate([
-        'nombre' => 'required|string|max:255',
-    ]);
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+            // otros campos…
+        ]);
 
-    Categoria::create($request->all());
+        Categoria::create($validated);
 
-    return redirect()->route('categorias.index')->with('success', 'Categoría creada correctamente.');
+        return redirect()->route('categorias.index')
+                         ->with('success', 'Categoría creada correctamente.');
     }
 
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    public function edit($id)
     {
-        //
+        return Inertia::render('categorias/Edit', compact('categoria'));
     }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        $categoria = Categoria::findOrFail($id);
-        return view('categorias.edit', compact('categoria'));
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
 
     public function update(Request $request, Categoria $categoria)
     {
-    $request->validate([
-    'nombre' => 'required|string|max:255',
-    ]);
+        $validated = $request->validate([
+            'nombre' => 'required|string|max:255',
+        ]);
+        $categoria->update($validated);
 
-    $categoria->update($request->all());
-
-    return redirect()->route('categorias.index')->with('success', 'Categoría actualizada correctamente.');
+        return redirect()->route('categorias.index')
+                         ->with('success', 'Categoría actualizada correctamente.');
     }
 
     public function destroy(Categoria $categoria)
     {
-    $categoria->delete();
-    return redirect()->route('categorias.index')->with('success', 'Categoría eliminada correctamente.');
+        $categoria->delete();
+        return redirect()->route('categorias.index')
+                         ->with('success', 'Categoría eliminada correctamente.');
     }
-
 }

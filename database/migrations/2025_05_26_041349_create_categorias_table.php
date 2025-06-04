@@ -12,7 +12,11 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('categorias', function (Blueprint $table) {
-            $table->id();
+            // Cambiamos $table->id() por bigIncrements('categoria_id')
+            $table->bigIncrements('categoria_id');
+            $table->string('nombre', 255);
+            // Si no vas a usar created_at/updated_at, quita esta línea. 
+            // Si sí, déjala:
             $table->timestamps();
         });
     }

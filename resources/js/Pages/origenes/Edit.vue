@@ -13,7 +13,9 @@
 </template>
 
 <script setup>
-import { useForm } from '@inertiajs/vue3'
+import { usePage } from '@inertiajs/vue3'
+import { watchEffect } from 'vue'
+
 import { defineProps } from 'vue'
 
 const props = defineProps({

@@ -10,9 +10,10 @@ class Origen extends Model
     use HasFactory;
 
     protected $table = 'origenes';
-    protected $primaryKey = 'origen_id';
-    public $timestamps = false;
+    protected $primaryKey = 'origen_id'; // ← ESTE CAMBIO
 
-    protected $fillable = ['pais'];
+    public $timestamps = false; // o true si tienes los campos en la tabla
 
+    protected $fillable = ['pais']; // Y los campos que uses
 }
+

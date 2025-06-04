@@ -26,8 +26,6 @@ Route::resource('VitroBlocks', VitroBlocksController::class);
 Route::resource('categorias', CategoriaController::class);
 Route::resource('origenes', OrigenController::class);
 Route::resource('productos', ProductoController::class);
-//Route::get('/origenes/Create', [OrigenController::class, 'Create'])->name('origenes.create'); // formulario crear
-//Route::post('/origenes', [OrigenController::class, 'store'])->name('origenes.store'); // guardar
 
 
 

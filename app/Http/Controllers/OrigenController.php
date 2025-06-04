@@ -14,7 +14,7 @@ class OrigenController extends Controller
     public function index()
     {
         $origenes = Origen::all();
-        return Inertia::render('origenes.index', compact('origenes'));
+        return Inertia::render('origenes/Index', compact('origenes'));
         //return view('origenes.index');
     }
 
@@ -36,7 +36,7 @@ class OrigenController extends Controller
         $validated = $request->validate([
             'pais' => 'required|string|max:255'
         ]);
-        Origen::create($request->all());
+        Origen::create($validated);
         return redirect()->route('origenes.index')->with('success', 'Origen creado correctamente.');
     }
 
@@ -45,16 +45,17 @@ class OrigenController extends Controller
      */
     public function show(string $id)
     {
-        //
+        $origen = Origen::findOrFail($id);
+        return Inertia::render('origenes/Show', compact('origen'));
+        //return view('origenes.show', compact('origen'));
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit($id)
+    public function edit(Origen $origen)
     {
-        $origen = Origen::findOrFail($id);
-        return Inertia::render('origenes.Edit', compact('origen'));
+        return Inertia::render('origenes/Edit', compact('origen'));
     }
 
     /**
@@ -63,11 +64,11 @@ class OrigenController extends Controller
 
     public function update(Request $request, Origen $origen)
     {
-        $request->validate([
+        $validated = $request->validate([
         'pais' => 'required|string|max:255',
     ]);
 
-        $origen->update($request->all());
+        $origen->update($validated);
 
         return redirect()->route('origenes.index')->with('success', 'Origen actualizado correctamente.');
     }

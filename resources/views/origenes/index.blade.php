@@ -2,7 +2,7 @@
 
 @section('content')
 <h1>Listado de Orígenes</h1>
-<a href="{{ route('origenes.create') }}">Crear nuevo origen</a>
+<a href="{{ route('origenes/Create') }}">Crear nuevo origen</a>
 <table>
     <thead>
         <tr>

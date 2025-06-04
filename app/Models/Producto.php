@@ -4,9 +4,10 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class producto extends Model
+class Producto extends Model
 {
     use HasFactory;
+    protected $table = 'productos';
     protected $primaryKey = 'producto_id';
 
     protected $fillable = [
@@ -17,11 +18,11 @@ class producto extends Model
 
     public function categoria()
     {
-        return $this->belongsTo(Categoria::class);
+        return $this->belongsTo(Categoria::class, 'categoria_id', 'categoria_id');
     }
 
     public function origen()
     {
-        return $this->belongsTo(Origen::class);
+        return $this->belongsTo(Origen::class, 'origen_id', 'origen_id');
     }
 }
