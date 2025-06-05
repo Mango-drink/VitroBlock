@@ -21,16 +21,14 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        //
-
         Inertia::share([
             'appName' => config('app.name'),
             'flash' => fn () => [
                 'success' => session('success'),
                 'error' => session('error'),
             ],
+            'user' => fn () => auth()->user()
         ]);
-
 
         Schema::defaultStringLength(191);//Migraciones a la base de datos
     }
