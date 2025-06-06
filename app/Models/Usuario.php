@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
+
 class Usuario extends Authenticatable
 {
     protected $table = 'usuario';
@@ -14,5 +15,10 @@ class Usuario extends Authenticatable
     public function getAuthPassword()
     {
         return $this->password_hash;
+    }
+
+    public function rol()
+    {
+        return $this->belongsTo(Rol::class, 'rol_id', 'rol_id');
     }
 }

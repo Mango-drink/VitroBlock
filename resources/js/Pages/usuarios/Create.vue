@@ -12,7 +12,7 @@ const props = defineProps({
 const form = ref({
   nombre: '',
   email: '',
-  password_hash: '',
+  password: '',
   rol_id: ''
 })
 
@@ -42,8 +42,8 @@ function submit() {
         <div v-if="errors.email" style="color: red;">{{ errors.email }}</div>
       </div>
       <div>
-        <input v-model="form.password_hash" type="password" placeholder="Contraseña" required />
-        <div v-if="errors.password_hash" style="color: red;">{{ errors.password_hash }}</div>
+        <input v-model="form.password" type="password" placeholder="Contraseña" required />
+        <div v-if="errors.password" style="color: red;">{{ errors.password }}</div>
       </div>
       <div>
         <select v-model="form.rol_id" required>

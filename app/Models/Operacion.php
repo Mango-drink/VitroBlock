@@ -5,7 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Producto;
 use App\Models\Usuario;
-use App\Models\User;
 use App\Models\Sincronizacion;
 
 class Operacion extends Model

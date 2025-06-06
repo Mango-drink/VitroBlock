@@ -6,18 +6,17 @@ use App\Models\Usuario;
 use App\Models\Rol;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Hash;
 
 class UsuarioController extends Controller
 {
     public function index()
     {
         $usuarios = Usuario::with('rol')->get();
-            return Inertia::render('usuarios/Index', ['usuarios' => $usuarios]);
-         $user = auth()->user();
-        // ... otros datos que quieras pasar
-            return Inertia::render('usuarios/Index', [
+        $user = auth()->user();
+        return Inertia::render('usuarios/Index', [
+            'usuarios' => $usuarios,
             'user' => $user,
-        // ...más props si quieres
         ]);
     }
 
@@ -32,10 +31,15 @@ class UsuarioController extends Controller
         $request->validate([
             'nombre' => 'required|string|max:255',
             'email' => 'required|email|unique:usuario,email',
-            'password_hash' => 'required|string|min:6',
+            'password' => 'required|string|min:6',
             'rol_id' => 'required|exists:rol,rol_id',
         ]);
-        Usuario::create($request->only('nombre', 'email', 'password_hash', 'rol_id'));
+        Usuario::create([
+            'nombre' => $request->nombre,
+            'email' => $request->email,
+            'password_hash' => Hash::make($request->password),
+            'rol_id' => $request->rol_id,
+        ]);
         return redirect()->route('usuarios.index')->with('success', 'Usuario creado exitosamente.');
     }
 

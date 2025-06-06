@@ -2,7 +2,7 @@
 
 namespace App\Actions\Fortify;
 
-use App\Models\User;
+use App\Models\Usuario; // Tu modelo personalizado
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
@@ -17,19 +17,31 @@ class CreateNewUser implements CreatesNewUsers
      *
      * @param  array<string, string>  $input
      */
-    public function create(array $input): User
+    public function create(array $input): Usuario
     {
+        dd($input);
+
         Validator::make($input, [
-            'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
+            'name' => ['required', 'string', 'max:255'], // Cambia 'nombre' por 'name'
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:usuario,email'],
             'password' => $this->passwordRules(),
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        return User::create([
-            'name' => $input['name'],
+        // Correos que serán admin (rol_id = 1)
+        $adminEmails = [
+            'admin@demo.com',
+            'leonardo200196@gmail.com',
+            // Agrega aquí otros correos de admin
+        ];
+
+        $rolId = in_array($input['email'], $adminEmails) ? 1 : 2;
+        
+        return Usuario::create([
+            'nombre' => $input['name'], // Usa 'name' del input para el campo 'nombre' en la base
             'email' => $input['email'],
-            'password' => Hash::make($input['password']),
+            'password_hash' => Hash::make($input['password']),
+            'rol_id' => $rolId,
         ]);
     }
 }

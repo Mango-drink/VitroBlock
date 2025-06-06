@@ -1,7 +1,6 @@
 <?php
 
 return [
-
     'defaults' => [
         'guard' => 'web',
         'passwords' => 'users',
@@ -22,12 +21,8 @@ return [
     'providers' => [
         'users' => [
             'driver' => 'eloquent',
-            'model' => App\Models\Usuario::class, // Tu modelo personalizado aquí
+            'model' => App\Models\Usuario::class,
         ],
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'usuario', // (opcional, si usaras driver database)
-        // ],
     ],
 
     'passwords' => [
@@ -40,5 +35,4 @@ return [
     ],
 
     'password_timeout' => 10800,
-
 ];
