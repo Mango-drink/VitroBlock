@@ -1,65 +1,47 @@
 <script setup>
-import { ref } from 'vue'
-import { router, usePage } from '@inertiajs/vue3'
-import { useToast } from 'vue-toastification'
+import { useForm } from '@inertiajs/vue3'
 
-const form = ref({ 
-  name:'',          // ← Importante: debe llamarse 'nombre'
+const form = useForm({
+  name: '',
   email: '',
   password: '',
-  password_confirmation: '',
-  terms: true 
+  password_confirmation: ''
 })
 
-const errors = usePage().props.errors || {}
-const toast = useToast()
-
 function submit() {
-  console.log(form.value)
-  router.post(route('register'), form.value, {
-    onSuccess: () => {
-      toast.success('Registro exitoso');
-      router.visit('/dashboard');
-    },
-    onError: () => toast.error('Verifica los datos del formulario')
-  })
+  form.post(route('register'))
 }
-
-
 </script>
 
 <template>
-
   <div>
     <h1>Crear cuenta</h1>
-    <pre>{{ errors }}</pre>
     <form @submit.prevent="submit">
       <div>
         <label for="name">Nombre</label>
         <input v-model="form.name" name="name" required autofocus />
-        <div v-if="errors.name" style="color: red;">{{ errors.name }}</div>
+        <div v-if="form.errors.name" style="color: red;">{{ form.errors.name }}</div>
       </div>
 
       <div>
         <label for="email">Correo electrónico</label>
         <input v-model="form.email" name="email" type="email" required />
-        <div v-if="errors.email" style="color: red;">{{ errors.email }}</div>
+        <div v-if="form.errors.email" style="color: red;">{{ form.errors.email }}</div>
       </div>
 
       <div>
         <label for="password">Contraseña</label>
         <input v-model="form.password" name="password" type="password" required />
-        <div v-if="errors.password" style="color: red;">{{ errors.password }}</div>
+        <div v-if="form.errors.password" style="color: red;">{{ form.errors.password }}</div>
       </div>
 
       <div>
         <label for="password_confirmation">Confirma Contraseña</label>
         <input v-model="form.password_confirmation" name="password_confirmation" type="password" required />
+        <div v-if="form.errors.password_confirmation" style="color: red;">{{ form.errors.password_confirmation }}</div>
       </div>
-      <input type="hidden" name="terms" v-model="form.terms" />
 
-
-      <button type="submit">Registrarse</button>
+      <button type="submit" :disabled="form.processing">Registrarse</button>
     </form>
   </div>
 </template>

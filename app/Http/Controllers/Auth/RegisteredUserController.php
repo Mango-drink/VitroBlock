@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\Usuario;
-use App\Providers\RouteServiceProvider;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
@@ -33,21 +32,29 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|lowercase|email|max:255|unique:'.Usuario::class,
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'email' => 'required|string|lowercase|email|max:255|unique:usuario,email',
+            'password' => ['required', 'confirmed', Rules\Password::defaults()->min(8),// <--- fuerza mínimo de 8 caracteres
+            ],
+        ], [
+            'password.min' => 'La contraseña debe tener al menos 8 caracteres.',
         ]);
 
         $user = Usuario::create([
-        'nombre' => $request->name,             // ← mapeo correcto
-        'email' => $request->email,
-        'password_hash' => Hash::make($request->password),
-        'rol_id' => 2, // ← mapeo correcto
+            'nombre' => $request->name, 
+            'email' => $request->email,
+            'password_hash' => Hash::make($request->password),
+            'rol_id' => 2, // Siempre cliente
         ]);
 
         event(new Registered($user));
 
         Auth::login($user);
 
-        return redirect(RouteServiceProvider::HOME);
+        // Redirección según rol (puedes expandir en el futuro si registras admins)
+        if ($user->rol_id == 1) {
+            return redirect('/admin/dashboard');
+        }
+        return redirect('/productos')->with('success', '¡Bienvenido a la plataforma! Tu registro fue exitoso.');
+
     }
 }

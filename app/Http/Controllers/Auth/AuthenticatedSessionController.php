@@ -31,11 +31,15 @@ class AuthenticatedSessionController extends Controller
     public function store(LoginRequest $request): RedirectResponse
     {
         $request->authenticate();
-
         $request->session()->regenerate();
 
-        return redirect()->intended(RouteServiceProvider::HOME);
+        $user = auth()->user();
+        if ($user->rol_id == 1) {
+            return redirect()->intended('/admin/dashboard');
+        }
+        return redirect()->intended('/productos');
     }
+
 
     /**
      * Destroy an authenticated session.
@@ -50,4 +54,5 @@ class AuthenticatedSessionController extends Controller
 
         return redirect('/');
     }
+
 }

@@ -21,13 +21,19 @@ const form = useForm({
   m2_por_caja: '',
   stock_actual: '',
   precio: '',
-  imagen_url: '',
+  imagen_url: null,
   categoria_id: '',
   origen_id: ''
 })
 
+const onFileChange = (e) => {
+  form.imagen_url = e.target.files[0];
+}
+
 const submit = () => {
-  form.post(route('productos.store'))
+  form.post(route('productos.store'), {
+    forceFormData: true
+  })
 }
 </script>
 
@@ -87,7 +93,7 @@ const submit = () => {
       </div>
       <div>
         <label for="imagen_url">Imagen (URL):</label>
-        <input id="imagen_url" v-model="form.imagen_url" type="text" class="border rounded p-2 w-full" />
+        <input id="imagen_url" type="file" @change="onFileChange" class="border rounded p-2 w-full" />
         <div v-if="form.errors.imagen_url" class="text-red-500">{{ form.errors.imagen_url }}</div>
       </div>
       <div>

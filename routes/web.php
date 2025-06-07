@@ -11,31 +11,39 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
-|
-*/
-Route::resource('productos', ProductoController::class);
-Route::resource('categorias', CategoriaController::class);
-Route::resource('origenes', OrigenController::class);
-Route::resource('roles', RolController::class);
-Route::resource('usuarios', UsuarioController::class);
-Route::resource('operacion', OperacionController::class);
-
-Route::middleware(['auth', 'is_admin'])->group(function () {
-    Route::resource('usuarios', UsuarioController::class);
-    // Aquí puedes poner más recursos CRUD solo para admin
+// ----------------------------------------
+// Rutas para clientes (solo visualizar)
+// ----------------------------------------
+Route::middleware(['auth', 'verified'])->group(function () {
+    // Cambiamos a indexCliente para la consulta de productos
+    Route::get('/productos', [ProductoController::class, 'indexCliente'])->name('productos.index');
+    Route::get('/productos/{producto}', [ProductoController::class, 'show'])->name('productos.show');
 });
 
+// ----------------------------------------
+// Rutas para administradores (CRUD completo)
+// ----------------------------------------
+Route::middleware(['auth', 'is_admin'])->group(function () {
+    // El admin tiene su propio listado con funciones completas
+    Route::get('/admin/productos', [ProductoController::class, 'index'])->name('admin.productos.index');
+    Route::resource('productos', ProductoController::class)->except(['index', 'show']);
+    Route::resource('categorias', CategoriaController::class);
+    Route::resource('origenes', OrigenController::class);
+    Route::resource('roles', RolController::class)->parameters([
+        'roles' => 'rol'
+    ]);
+    Route::resource('usuarios', UsuarioController::class);
+    Route::resource('operacion', OperacionController::class);
 
+    // Dashboard para administradores
+    Route::get('/admin/dashboard', function () {
+        return Inertia::render('admin/Dashboard');
+    })->name('admin.dashboard');
+});
 
-
+// ----------------------------------------
+// Página de bienvenida (pública)
+// ----------------------------------------
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
@@ -45,10 +53,14 @@ Route::get('/', function () {
     ]);
 });
 
-Route::get('/dashboard', function () {
-    return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
+// ----------------------------------------
+// Dashboard (comentado si no lo usas)
+// ----------------------------------------
 
+
+// ----------------------------------------
+// Perfil de usuario
+// ----------------------------------------
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');

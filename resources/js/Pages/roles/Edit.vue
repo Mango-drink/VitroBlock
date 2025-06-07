@@ -1,3 +1,5 @@
+console.log('PROPS AL LLEGAR:', props)
+
 <script setup>
 import { ref } from 'vue'
 import { router, usePage } from '@inertiajs/vue3'
@@ -19,14 +21,16 @@ const errors = usePage().props.errors || {}
 
 // AQUÍ va la línea corregida:
 function submit() {
-    console.log('props.rol:', props.rol)
-    console.log('props.rol.rol_id:', props.rol.rol_id)
-    console.log('route:', route('roles.update', { role: props.rol.rol_id }))
-    router.put(route('roles.update', { role: props.rol.rol_id }), form.value, {
+    // Toma el id correcto (rol_id o id)
+    const rol_id = props.rol.rol_id ?? props.rol.id;
+
+    // Siempre usa 'rol' como nombre del parámetro (¡NO 'role'!)
+    router.put(route('roles.update', { rol: rol_id }), form.value, {
         onSuccess: () => toast.success('Rol actualizado exitosamente.'),
         onError: () => toast.error('Hubo un error al actualizar el rol.')
-  })
-}
+    });
+} 
+
 </script>
 
 <template>
