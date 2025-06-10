@@ -1,8 +1,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3'
-import { watchEffect } from 'vue'
-
 import { route } from 'ziggy-js'
+import { Inertia } from '@inertiajs/inertia'
 
 // Declarar el formulario con el campo 'nombre'
 const form = useForm({
@@ -13,21 +12,34 @@ const form = useForm({
 const submit = () => {
   form.post(route('categorias.store'))
 }
+
+// Función para regresar al index de categorías
+function goToIndex() {
+  Inertia.visit(route('categorias.index'))
+}
 </script>
 
 <template>
-  <div>
-    <h1>Ingresa Nueva Categoría</h1>
-
+  <div class="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-xl p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Ingresa Nueva Categoría</h1>
+      <button
+        @click="goToIndex"
+        type="button"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded shadow border border-gray-400 ml-4 transition"
+      >
+        ← Regresar
+      </button>
+    </div>
     <form @submit.prevent="submit">
-      <label for="nombre">Nombre de la Categoría:</label>
+      <label for="nombre" class="block mb-2 font-semibold">Nombre de la Categoría:</label>
       <input
         type="text"
         id="nombre"
         name="nombre"
         v-model="form.nombre"
         placeholder="Ej. Cerámica, Porcelanato"
-        class="border rounded p-2"
+        class="border rounded p-2 w-full"
       />
 
       <!-- Mostrar error de validación si existe -->

@@ -1,42 +1,52 @@
 <script setup>
-import { usePage } from '@inertiajs/vue3'
-import { watchEffect } from 'vue'
-
+import { useForm } from '@inertiajs/vue3'
+import { router } from '@inertiajs/vue3'
 import { route } from 'ziggy-js'
 
-// Recibimos la categoría completa como prop
 const props = defineProps({
   categoria: Object
 })
 
-// Inicializamos el formulario con el valor actual
 const form = useForm({
   nombre: props.categoria.nombre
-  // …otros campos si hubiera
 })
 
-const submit = () => {
-  // Aquí pasamos el ID correcto: props.categoria.categoria_id
+function submit() {
   form.put(route('categorias.update', { categoria: props.categoria.categoria_id }))
+}
+
+function goToIndex() {
+  router.visit(route('categorias.index'))
 }
 </script>
 
 <template>
-  <div>
-    <h1>Editar Categoría</h1>
-    <form @submit.prevent="submit">
-      <label for="nombre">Nombre de Categoría:</label>
-      <input
-        type="text"
-        id="nombre"
-        v-model="form.nombre"
-        class="border rounded p-2"
-      />
-      <div v-if="form.errors.nombre" class="text-red-500">{{ form.errors.nombre }}</div>
+  <div class="max-w-md mx-auto mt-10 bg-white shadow-lg rounded-xl p-6">
+    <div class="flex justify-between items-center mb-6">
+      <h1 class="text-2xl font-bold text-gray-800">Editar Categoría</h1>
+      <button
+        @click="goToIndex"
+        type="button"
+        class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-3 py-1 rounded shadow border border-gray-400 ml-4 transition"
+      >
+        ← Regresar
+      </button>
+    </div>
+    <form @submit.prevent="submit" class="space-y-4">
+      <div>
+        <label for="nombre" class="block mb-2 font-semibold">Nombre de Categoría:</label>
+        <input
+          type="text"
+          id="nombre"
+          v-model="form.nombre"
+          class="border rounded p-2 w-full"
+        />
+        <div v-if="form.errors.nombre" class="text-red-500 mt-1">{{ form.errors.nombre }}</div>
+      </div>
       <button
         type="submit"
         :disabled="form.processing"
-        class="bg-blue-500 text-white px-4 py-2 rounded mt-2"
+        class="bg-blue-500 text-white px-4 py-2 rounded mt-2 hover:bg-blue-700 transition"
       >
         Actualizar
       </button>

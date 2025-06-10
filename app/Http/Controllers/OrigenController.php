@@ -14,9 +14,11 @@ class OrigenController extends Controller
     public function index()
     {
         $origenes = Origen::all();
-        return Inertia::render('origenes/Index', compact('origenes'));
-        //return view('origenes.index');
+        return Inertia::render('origenes/Index', [
+            'origenes' => $origenes
+        ]);
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -55,7 +57,9 @@ class OrigenController extends Controller
      */
     public function edit(Origen $origen)
     {
-        return Inertia::render('origenes/Edit', compact('origen'));
+        return Inertia::render('origenes/Edit', [
+            'origen' => $origen
+        ]);
     }
 
     /**

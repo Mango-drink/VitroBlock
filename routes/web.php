@@ -28,7 +28,10 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     Route::get('/admin/productos', [ProductoController::class, 'index'])->name('admin.productos.index');
     Route::resource('productos', ProductoController::class)->except(['index', 'show']);
     Route::resource('categorias', CategoriaController::class);
-    Route::resource('origenes', OrigenController::class);
+    // 👇 Aquí el cambio recomendado
+    Route::resource('origenes', OrigenController::class)->parameters([
+        'origenes' => 'origen'
+    ]);
     Route::resource('roles', RolController::class)->parameters([
         'roles' => 'rol'
     ]);
@@ -40,6 +43,7 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
         return Inertia::render('admin/Dashboard');
     })->name('admin.dashboard');
 });
+
 
 // ----------------------------------------
 // Página de bienvenida (pública)

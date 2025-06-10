@@ -35,7 +35,7 @@ class CategoriaController extends Controller
                          ->with('success', 'Categoría creada correctamente.');
     }
 
-    public function edit($id)
+    public function edit(\App\Models\Categoria $categoria)
     {
         return Inertia::render('categorias/Edit', compact('categoria'));
     }
