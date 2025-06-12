@@ -9,13 +9,13 @@ use App\Http\Controllers\UsuarioController;
 use App\Http\Controllers\OperacionController;
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 // ----------------------------------------
 // Rutas para clientes (solo visualizar)
 // ----------------------------------------
 Route::middleware(['auth', 'verified'])->group(function () {
-    // Cambiamos a indexCliente para la consulta de productos
     Route::get('/productos', [ProductoController::class, 'indexCliente'])->name('productos.index');
     Route::get('/productos/{producto}', [ProductoController::class, 'show'])->name('productos.show');
 });
@@ -23,12 +23,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 // ----------------------------------------
 // Rutas para administradores (CRUD completo)
 // ----------------------------------------
-Route::middleware(['auth', 'is_admin'])->group(function () {
-    // El admin tiene su propio listado con funciones completas
-    Route::get('/admin/productos', [ProductoController::class, 'index'])->name('admin.productos.index');
-    Route::resource('productos', ProductoController::class)->except(['index', 'show']);
+Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(function () {
+    // Listado admin
+    Route::get('dashboard', function () {
+        return Inertia::render('admin/Dashboard');
+    })->name('dashboard');
+
+    Route::resource('productos', ProductoController::class);
     Route::resource('categorias', CategoriaController::class);
-    // 👇 Aquí el cambio recomendado
     Route::resource('origenes', OrigenController::class)->parameters([
         'origenes' => 'origen'
     ]);
@@ -37,18 +39,22 @@ Route::middleware(['auth', 'is_admin'])->group(function () {
     ]);
     Route::resource('usuarios', UsuarioController::class);
     Route::resource('operacion', OperacionController::class);
-
-    // Dashboard para administradores
-    Route::get('/admin/dashboard', function () {
-        return Inertia::render('admin/Dashboard');
-    })->name('admin.dashboard');
 });
-
 
 // ----------------------------------------
 // Página de bienvenida (pública)
 // ----------------------------------------
 Route::get('/', function () {
+    if (Auth::check()) {
+        if (Auth::user()->rol_id === 1) {
+            // Es admin
+            return redirect()->route('admin.dashboard');
+        } else {
+            // Es cliente o cualquier otro rol
+            return redirect()->route('productos.index');
+        }
+    }
+    // Landing page para visitantes no autenticados
     return Inertia::render('Welcome', [
         'canLogin' => Route::has('login'),
         'canRegister' => Route::has('register'),
@@ -56,11 +62,6 @@ Route::get('/', function () {
         'phpVersion' => PHP_VERSION,
     ]);
 });
-
-// ----------------------------------------
-// Dashboard (comentado si no lo usas)
-// ----------------------------------------
-
 
 // ----------------------------------------
 // Perfil de usuario

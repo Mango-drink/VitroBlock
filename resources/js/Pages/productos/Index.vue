@@ -1,6 +1,6 @@
 <script setup>
+import { ref, computed, watchEffect } from 'vue'
 import { usePage, router } from '@inertiajs/vue3'
-import { watchEffect } from 'vue'
 import { useToast } from 'vue-toastification'
 import { route } from 'ziggy-js'
 
@@ -21,15 +21,30 @@ const props = defineProps({
   productos: Array
 })
 
+// === FILTRO FRONTEND ===
+const search = ref('')
+
+const productosFiltrados = computed(() => {
+  if (!search.value.trim()) return props.productos
+  const texto = search.value.trim().toLowerCase()
+  return props.productos.filter(prod =>
+    (prod.nombre && prod.nombre.toLowerCase().includes(texto)) ||
+    (prod.codigo && prod.codigo.toLowerCase().includes(texto)) ||
+    (prod.categoria?.nombre && prod.categoria.nombre.toLowerCase().includes(texto)) ||
+    (prod.origen?.pais && prod.origen.pais.toLowerCase().includes(texto))
+  )
+})
+
+// --- MODIFICADO: usa la ruta admin.productos.create
 function goToCreate() {
-  router.visit(route('productos.create'))
+  router.visit(route('admin.productos.create'))
 }
 function goToEdit(id) {
-  router.visit(route('productos.edit', { producto: id }))
+  router.visit(route('admin.productos.edit', { producto: id }))
 }
 function destroy(id) {
   if (!confirm('¿Eliminar este producto?')) return
-  router.delete(route('productos.destroy', { producto: id }))
+  router.delete(route('admin.productos.destroy', { producto: id }))
 }
 function goToDashboard() {
   router.visit(route('admin.dashboard'))
@@ -59,6 +74,21 @@ function goToDashboard() {
           </button>
         </div>
       </div>
+      <!-- FILTRO DE BÚSQUEDA -->
+      <div class="mb-5 flex flex-col sm:flex-row sm:items-center gap-3">
+        <input
+          v-model="search"
+          type="text"
+          placeholder="Buscar por nombre, código, categoría u origen..."
+          class="w-full sm:w-1/2 border-2 border-blue-100 rounded-xl p-3 text-gray-700 placeholder-gray-400 shadow-sm outline-none focus:border-blue-400 transition"
+        />
+        <button
+          v-if="search"
+          @click="search = ''"
+          class="ml-2 px-4 py-2 bg-gray-200 rounded-xl text-gray-700 font-semibold shadow border border-gray-300 hover:bg-gray-300 transition"
+        >Limpiar</button>
+      </div>
+      <!-- / FILTRO -->
 
       <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
         <table class="min-w-full text-base">
@@ -74,7 +104,7 @@ function goToDashboard() {
           </thead>
           <tbody>
             <tr
-              v-for="prod in props.productos"
+              v-for="prod in productosFiltrados"
               :key="prod.producto_id"
               class="hover:bg-blue-50 transition"
             >
@@ -94,8 +124,8 @@ function goToDashboard() {
                 >Eliminar</button>
               </td>
             </tr>
-            <tr v-if="!props.productos.length">
-              <td colspan="6" class="py-6 text-center text-gray-500">No hay productos registrados.</td>
+            <tr v-if="!productosFiltrados.length">
+              <td colspan="6" class="py-6 text-center text-gray-500">No hay productos encontrados.</td>
             </tr>
           </tbody>
         </table>
