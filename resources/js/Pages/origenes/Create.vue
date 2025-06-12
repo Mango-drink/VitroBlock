@@ -9,11 +9,11 @@ const form = useForm({
 })
 
 function goToIndex() {
-  Inertia.visit(route('origenes.index'))
+  Inertia.visit(route('admin.origenes.index'))
 }
 
 const submit = () => {
-  form.post(route('origenes.store'))
+  form.post(route('admin.origenes.store'))
 }
 </script>
 

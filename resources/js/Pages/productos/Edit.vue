@@ -26,11 +26,11 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.put(route('productos.update', { producto: props.producto.producto_id }))
+  form.put(route('admin.productos.update', { producto: props.producto.producto_id }))
 }
 
 function goToIndex() {
-  router.visit(route('productos.index'))
+  router.visit(route('admin.productos.index'))
 }
 </script>
 

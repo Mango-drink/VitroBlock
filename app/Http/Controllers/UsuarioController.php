@@ -7,9 +7,12 @@ use App\Models\Rol;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Hash;
+use App\Traits\RegistraOperacion; // <--- Importa el Trait
 
 class UsuarioController extends Controller
 {
+    use RegistraOperacion; // <--- Usa el Trait
+
     public function index()
     {
         $usuarios = Usuario::with('rol')->get();
@@ -34,13 +37,22 @@ class UsuarioController extends Controller
             'password' => 'required|string|min:6',
             'rol_id' => 'required|exists:rol,rol_id',
         ]);
-        Usuario::create([
+        $usuario = Usuario::create([
             'nombre' => $request->nombre,
             'email' => $request->email,
             'password_hash' => Hash::make($request->password),
             'rol_id' => $request->rol_id,
         ]);
-        return redirect()->route('usuarios.index')->with('success', 'Usuario creado exitosamente.');
+
+        // Bitácora: registro de creación
+        $this->registraOperacion(
+            'alta',
+            'usuarios',
+            $usuario->usuario_id,
+            'Creación de usuario: ' . $usuario->nombre
+        );
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario creado exitosamente.');
     }
 
     public function edit(Usuario $usuario)
@@ -60,12 +72,33 @@ class UsuarioController extends Controller
             'rol_id' => 'required|exists:rol,rol_id',
         ]);
         $usuario->update($request->only('nombre', 'email', 'rol_id'));
-        return redirect()->route('usuarios.index')->with('success', 'Usuario actualizado exitosamente.');
+
+        // Bitácora: registro de modificación
+        $this->registraOperacion(
+            'modificacion',
+            'usuarios',
+            $usuario->usuario_id,
+            'Modificación de usuario: ' . $usuario->nombre
+        );
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario actualizado exitosamente.');
     }
 
     public function destroy(Usuario $usuario)
     {
+        $nombre = $usuario->nombre;
+        $id = $usuario->usuario_id;
+
         $usuario->delete();
-        return redirect()->route('usuarios.index')->with('success', 'Usuario eliminado exitosamente.');
+
+        // Bitácora: registro de baja
+        $this->registraOperacion(
+            'baja',
+            'usuarios',
+            $id,
+            'Eliminación de usuario: ' . $nombre
+        );
+
+        return redirect()->route('admin.usuarios.index')->with('success', 'Usuario eliminado exitosamente.');
     }
 }

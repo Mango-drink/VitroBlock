@@ -29,11 +29,11 @@ function goToDashboard() {
 }
 
 function goToCreate() {
-  router.visit(route('roles.create'))
+  router.visit(route('admin.roles.create'))
 }
 
 function goToEdit(id) {
-  router.visit(route('roles.edit', { rol: id }))
+  router.visit(route('admin.roles.edit', { rol: id }))
 }
 </script>
 

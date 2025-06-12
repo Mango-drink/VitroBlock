@@ -31,23 +31,23 @@ const user = page.props.auth.user
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-blue-100 font-medium">
             <Package class="w-5 h-5 text-blue-600" /> Productos
           </button>
-          <button @click="router.visit(route('categorias.index'))"
+          <button @click="router.visit(route('admin.categorias.index'))"
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-green-100 font-medium">
             <Tag class="w-5 h-5 text-green-600" /> Categorías
           </button>
-          <button @click="router.visit(route('origenes.index'))"
+          <button @click="router.visit(route('admin.origenes.index'))"
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-yellow-100 font-medium">
             <Globe class="w-5 h-5 text-yellow-600" /> Orígenes
           </button>
-          <button @click="router.visit(route('roles.index'))"
+          <button @click="router.visit(route('admin.roles.index'))"
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-purple-100 font-medium">
             <Layers class="w-5 h-5 text-purple-600" /> Roles
           </button>
-          <button @click="router.visit(route('usuarios.index'))"
+          <button @click="router.visit(route('admin.usuarios.index'))"
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-pink-100 font-medium">
             <Users class="w-5 h-5 text-pink-600" /> Usuarios
           </button>
-          <button @click="router.visit(route('operacion.index'))"
+          <button @click="router.visit(route('admin.operacion.index'))"
             class="flex items-center gap-2 px-4 py-2 rounded transition hover:bg-red-100 font-medium">
             <List class="w-5 h-5 text-red-600" /> Operaciones
           </button>

@@ -3,14 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Origen; // Assuming you have an Origen model
+use App\Models\Origen;
 use Inertia\Inertia;
+use App\Traits\RegistraOperacion; // ← Importa el Trait
 
 class OrigenController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    use RegistraOperacion; // ← Usa el Trait
+
     public function index()
     {
         $origenes = Origen::all();
@@ -19,42 +19,35 @@ class OrigenController extends Controller
         ]);
     }
 
-
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
-        //
         return Inertia::render('origenes/Create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(Request $request)
     {
-        //
         $validated = $request->validate([
             'pais' => 'required|string|max:255'
         ]);
-        Origen::create($validated);
-        return redirect()->route('origenes.index')->with('success', 'Origen creado correctamente.');
+        $origen = Origen::create($validated);
+
+        // Bitácora: registro de creación
+        $this->registraOperacion(
+            'alta',
+            'origenes',
+            $origen->origen_id, // Cambia a $origen->origen_id si aplica
+            'Creación de origen: ' . $origen->pais
+        );
+
+        return redirect()->route('admin.origenes.index')->with('success', 'Origen creado correctamente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function show(string $id)
     {
         $origen = Origen::findOrFail($id);
         return Inertia::render('origenes/Show', compact('origen'));
-        //return view('origenes.show', compact('origen'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit(Origen $origen)
     {
         return Inertia::render('origenes/Edit', [
@@ -62,25 +55,39 @@ class OrigenController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-
     public function update(Request $request, Origen $origen)
     {
         $validated = $request->validate([
-        'pais' => 'required|string|max:255',
-    ]);
-
+            'pais' => 'required|string|max:255',
+        ]);
         $origen->update($validated);
 
-        return redirect()->route('origenes.index')->with('success', 'Origen actualizado correctamente.');
+        // Bitácora: registro de modificación
+        $this->registraOperacion(
+            'modificacion',
+            'origenes',
+            $origen->origen_id, // Cambia a $origen->origen_id si aplica
+            'Modificación de origen: ' . $origen->pais
+        );
+
+        return redirect()->route('admin.origenes.index')->with('success', 'Origen actualizado correctamente.');
     }
 
     public function destroy(Origen $origen)
     {
-        $origen->delete();
-        return redirect()->route('origenes.index')->with('success', 'Origen eliminado correctamente.');
-    }
+        $pais = $origen->pais;
+        $id = $origen->id; // Cambia a $origen->origen_id si aplica
 
+        $origen->delete();
+
+        // Bitácora: registro de baja
+        $this->registraOperacion(
+            'baja',
+            'origenes',
+            $id,
+            'Eliminación de origen: ' . $pais
+        );
+
+        return redirect()->route('admin.origenes.index')->with('success', 'Origen eliminado correctamente.');
+    }
 }

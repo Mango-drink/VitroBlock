@@ -13,14 +13,14 @@ const toast = useToast()
 const errors = usePage().props.errors || {}
 
 function submit() {
-  router.post(route('roles.store'), form.value, {
+  router.post(route('admin.roles.store'), form.value, {
     onSuccess: () => toast.success('Rol creado exitosamente.'),
     onError: () => toast.error('Hubo un error al crear el rol.')
   })
 }
 
 function goToIndex() {
-  router.visit(route('roles.index'))
+  router.visit(route('admin.roles.index'))
 }
 </script>
 

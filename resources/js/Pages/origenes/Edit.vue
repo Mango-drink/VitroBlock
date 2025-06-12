@@ -14,11 +14,11 @@ const form = useForm({
 })
 
 function submit() {
-  form.put(route('origenes.update', props.origen.origen_id))
+  form.put(route('admin.origenes.update', props.origen.origen_id))
 }
 
 function goToIndex() {
-  router.visit(route('origenes.index'))
+  router.visit(route('admin.origenes.index'))
 }
 </script>
 

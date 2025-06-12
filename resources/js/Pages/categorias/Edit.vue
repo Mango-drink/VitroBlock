@@ -12,11 +12,11 @@ const form = useForm({
 })
 
 function submit() {
-  form.put(route('categorias.update', { categoria: props.categoria.categoria_id }))
+  form.put(route('admin.categorias.update', { categoria: props.categoria.categoria_id }))
 }
 
 function goToIndex() {
-  router.visit(route('categorias.index'))
+  router.visit(route('admin.categorias.index'))
 }
 </script>
 

@@ -9,14 +9,14 @@ const props = defineProps({
 })
 
 function goToCreate() {
-  router.visit(route('origenes.create'))
+  router.visit(route('admin.origenes.create'))
 }
 function goToEdit(id) {
-  router.visit(route('origenes.edit', id))
+  router.visit(route('admin.origenes.edit', id))
 }
 function eliminar(origen) {
   if (confirm(`¿Estás seguro que deseas eliminar el origen "${origen.pais}"?`)) {
-    router.delete(route('origenes.destroy', origen.origen_id))
+    router.delete(route('admin.origenes.destroy', origen.origen_id))
   }
 }
 function goToDashboard() {

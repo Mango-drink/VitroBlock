@@ -34,7 +34,7 @@ const usuariosFiltrados = computed(() => {
 // Funciones originales...
 function destroy(id) {
   if (confirm('¿Eliminar este usuario?')) {
-    router.delete(route('usuarios.destroy', id), {
+    router.delete(route('admin.usuarios.destroy', id), {
       onSuccess: () => toast.success('Usuario eliminado exitosamente.')
     })
   }
@@ -45,11 +45,11 @@ function goToDashboard() {
 }
 
 function goToCreate() {
-  router.visit(route('usuarios.create'))
+  router.visit(route('admin.usuarios.create'))
 }
 
 function goToEdit(id) {
-  router.visit(route('usuarios.edit', id))
+  router.visit(route('admin.usuarios.edit', id))
 }
 </script>
 

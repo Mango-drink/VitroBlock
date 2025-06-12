@@ -20,14 +20,14 @@ const toast = useToast()
 const errors = usePage().props.errors || {}
 
 function submit() {
-  router.put(route('usuarios.update', props.usuario.usuario_id), form.value, {
+  router.put(route('admin.usuarios.update', props.usuario.usuario_id), form.value, {
     onSuccess: () => toast.success('Usuario actualizado exitosamente.'),
     onError: () => toast.error('Hubo un error al actualizar el usuario.')
   })
 }
 
 function goToIndex() {
-  router.visit(route('usuarios.index'))
+  router.visit(route('admin.usuarios.index'))
 }
 </script>
 

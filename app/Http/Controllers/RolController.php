@@ -25,7 +25,7 @@ class RolController extends Controller
     {
         $request->validate(['nombre' => 'required|string|max:255']);
         Rol::create($request->only('nombre'));
-        return redirect()->route('roles.index')->with('success', 'Rol creado exitosamente.');
+        return redirect()->route('admin.roles.index')->with('success', 'Rol creado exitosamente.');
     }
 
     public function edit(Rol $rol)
@@ -39,12 +39,12 @@ class RolController extends Controller
     {
         $request->validate(['nombre' => 'required|string|max:255']);
         $rol->update($request->only('nombre'));
-        return redirect()->route('roles.index')->with('success', 'Rol actualizado exitosamente.');
+        return redirect()->route('admin.roles.index')->with('success', 'Rol actualizado exitosamente.');
     }
 
     public function destroy(Rol $rol)
     {
         $rol->delete();
-        return redirect()->route('roles.index')->with('success', 'Rol eliminado exitosamente.');
+        return redirect()->route('admin.roles.index')->with('success', 'Rol eliminado exitosamente.');
     }
 }

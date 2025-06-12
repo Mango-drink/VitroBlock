@@ -9,11 +9,11 @@ const form = useForm({
 })
 
 const submit = () => {
-  form.post(route('categorias.store'))
+  form.post(route('admin.categorias.store'))
 }
 
 function goToIndex() {
-  Inertia.visit(route('categorias.index'))
+  Inertia.visit(route('admin.categorias.index'))
 }
 </script>
 

@@ -7,12 +7,12 @@ use App\Models\Categoria;
 use App\Models\Origen;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
+use App\Traits\RegistraOperacion; // Asegúrate de que este trait esté correctamente definido
 
 class ProductoController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    use RegistraOperacion;
+
     public function index()
     {
         $productos = \App\Models\Producto::with(['categoria', 'origen'])->get();
@@ -49,7 +49,7 @@ class ProductoController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-        public function store(Request $request)
+    public function store(Request $request)
     {
         $validated = $request->validate([
             'codigo' => 'required|string|max:255',
@@ -62,7 +62,6 @@ class ProductoController extends Controller
             'm2_por_caja' => 'required|numeric|min:0',
             'stock_actual' => 'required|integer|min:0',
             'precio' => 'required|numeric|min:0',
-            // Cambia a validación de imagen:
             'imagen_url' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
             'categoria_id' => 'required|exists:categorias,categoria_id',
             'origen_id' => 'required|exists:origenes,origen_id',
@@ -71,13 +70,23 @@ class ProductoController extends Controller
         // Guardar la imagen si se subió:
         if ($request->hasFile('imagen_url')) {
             $path = $request->file('imagen_url')->store('imagenes', 'public');
-            $validated['imagen_url'] = $path; // Guarda solo el path relativo (ej: 'imagenes/xyz.jpg')
+            $validated['imagen_url'] = $path;
         }
 
-        Producto::create($validated);
+        $producto = Producto::create($validated); // <-- Importante: guarda el producto en variable
 
-        return redirect()->route('productos.index')->with('success', 'Producto creado correctamente.');
+        // Bitácora: registro de creación
+        $this->registraOperacion(
+            'alta',
+            'productos',
+            $producto->id,
+            'Creación de producto: ' . $producto->nombre,
+            $producto->stock_actual
+        );
+
+        return redirect()->route('admin.productos.index')->with('success', 'Producto creado correctamente.');
     }
+
 
 
     /**
@@ -125,22 +134,47 @@ class ProductoController extends Controller
         ]);
         $producto->update($validated);
 
-        return redirect()->route('productos.index')->with('success', 'Producto actualizado correctamente.');
+        // Bitácora: registro de modificación
+        $this->registraOperacion(
+            'modificacion',
+            'productos',
+            $producto->id,
+            'Modificación de producto: ' . $producto->nombre,
+            $producto->stock_actual
+        );
+
+        return redirect()->route('admin.productos.index')->with('success', 'Producto actualizado correctamente.');
     }
+
 
     /**
      * Remove the specified resource from storage.
      */
-   public function destroy(Producto $producto)
+    public function destroy(Producto $producto)
     {
         // Borra la imagen física si existe
         if ($producto->imagen_url && Storage::disk('public')->exists($producto->imagen_url)) {
             Storage::disk('public')->delete($producto->imagen_url);
         }
 
+        // Guarda info relevante antes de eliminar
+        $nombre = $producto->nombre;
+        $stock_actual = $producto->stock_actual;
+        $id = $producto->id;
+
         // Borra el producto de la base de datos
         $producto->delete();
 
-        return redirect()->route('productos.index')->with('success', 'Producto eliminado correctamente.');
+        // Bitácora: registro de baja
+        $this->registraOperacion(
+            'baja',
+            'productos',
+            $id,
+            'Eliminación de producto: ' . $nombre,
+            $stock_actual
+        );
+
+        return redirect()->route('admin.productos.index')->with('success', 'Producto eliminado correctamente.');
     }
+
 }

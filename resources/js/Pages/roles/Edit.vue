@@ -18,14 +18,14 @@ const errors = usePage().props.errors || {}
 
 function submit() {
     const rol_id = props.rol.rol_id ?? props.rol.id
-    router.put(route('roles.update', { rol: rol_id }), form.value, {
+    router.put(route('admin.roles.update', { rol: rol_id }), form.value, {
         onSuccess: () => toast.success('Rol actualizado exitosamente.'),
         onError: () => toast.error('Hubo un error al actualizar el rol.')
     })
 }
 
 function goToIndex() {
-  router.visit(route('roles.index'))
+  router.visit(route('admin.roles.index'))
 }
 </script>
 

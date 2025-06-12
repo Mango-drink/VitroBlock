@@ -20,14 +20,14 @@ const toast = useToast()
 const errors = usePage().props.errors || {}
 
 function submit() {
-  router.post(route('usuarios.store'), form.value, {
+  router.post(route('admin.usuarios.store'), form.value, {
     onSuccess: () => toast.success('Usuario creado exitosamente.'),
     onError: () => toast.error('Hubo un error al crear el usuario.')
   })
 }
 
 function goToIndex() {
-  router.visit(route('usuarios.index'))
+  router.visit(route('admin.usuarios.index'))
 }
 </script>
 

@@ -10,15 +10,15 @@ const props = defineProps({
 
 function destroy(id) {
   if (!confirm('¿Eliminar esta categoría?')) return
-  Inertia.delete(route('categorias.destroy', { categoria: id }))
+  Inertia.delete(route('admin.categorias.destroy', { categoria: id }))
 }
 
 function goToCreate() {
-  Inertia.visit(route('categorias.create'))
+  Inertia.visit(route('admin.categorias.create'))
 }
 
 function goToEdit(id) {
-  Inertia.visit(route('categorias.edit', { categoria: id }))
+  Inertia.visit(route('admin.categorias.edit', { categoria: id }))
 }
 
 function goToDashboard() {

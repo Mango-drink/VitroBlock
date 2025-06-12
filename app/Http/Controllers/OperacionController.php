@@ -4,107 +4,59 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Operacion;
-use App\Models\Producto;
 use App\Models\Usuario;
 use Inertia\Inertia;
-use App\Models\Sincronizacion;
 
 class OperacionController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Muestra el historial con filtros y paginación
      */
-    public function index()
+    public function index(Request $request)
     {
-        $operaciones = Operacion::with(['producto', 'usuario'])->get();
+        $query = Operacion::with('usuario')->orderBy('fecha_hora', 'desc');
+
+        // Filtros
+        if ($request->filled('tipo')) {
+            $query->where('tipo', $request->tipo);
+        }
+        if ($request->filled('entidad')) {
+            $query->where('entidad', $request->entidad);
+        }
+        if ($request->filled('search')) {
+            $query->where('descripcion', 'like', '%' . $request->search . '%');
+        }
+        if ($request->filled('usuario_id')) {
+            $query->where('usuario_id', $request->usuario_id);
+        }
+
+        $operaciones = $query->paginate(15)->withQueryString();
+
+        // Catálogos para filtros
+        $tipos     = Operacion::select('tipo')->distinct()->pluck('tipo');
+        $entidades = Operacion::select('entidad')->distinct()->pluck('entidad');
+        $usuarios  = Usuario::orderBy('nombre')->get(['usuario_id', 'nombre']);
+
         return Inertia::render('operacion/Index', [
-            'operaciones' => $operaciones
+            'operaciones' => $operaciones,
+            'filtros'     => [
+                'tipo'      => $request->tipo,
+                'entidad'   => $request->entidad,
+                'search'    => $request->search,
+                'usuario_id'=> $request->usuario_id,
+            ],
+            'tipos'     => $tipos,
+            'entidades' => $entidades,
+            'usuarios'  => $usuarios,
         ]);
     }
 
-    public function create()
-    {
-        $productos = Producto::all();
-        $usuarios = Usuario::all();
-        return Inertia::render('operacion/Create', [
-            'productos' => $productos,
-            'usuarios' => $usuarios
-        ]);
-    }
-
-    public function store(Request $request)
-    {
-        // VALIDAR PRIMERO
-        $request->validate([
-            'tipo' => 'required|in:alta,baja,modificación',
-            'cantidad' => 'required|integer',
-            'fecha_hora' => 'required|date',
-            'producto_id' => 'required|exists:productos,producto_id',
-            'usuario_id' => 'required|exists:usuario,usuario_id'
-        ]);
-
-        // CREAR OPERACION
-        $operacion = Operacion::create([
-            'tipo' => $request->tipo,
-            'cantidad' => $request->cantidad,
-            'fecha_hora' => $request->fecha_hora,
-            'producto_id' => $request->producto_id,
-            'usuario_id' => $request->usuario_id
-        ]);
-        
-        // CREAR REGISTRO DE SINCRONIZACION (pendiente)
-        $sincronizacion = Sincronizacion::create([
-            'estado' => 'pendiente',
-            'fecha_hora' => now(),
-            'operacion_id' => $operacion->operacion_id,
-            'producto_id' => $operacion->producto_id,
-        ]);
-
-        // INTENTAR SINCRONIZAR AL INSTANTE (simulado aquí, cambia por tu lógica real)
-        $exito = $this->sincronizarConSistemaExterno($operacion);
-
-        // ACTUALIZAR ESTADO
-        $sincronizacion->estado = $exito ? 'éxito' : 'fallo';
-        $sincronizacion->save();
-
-        return redirect()->route('operacion.index')->with('success', 'Operación creada y sincronizada correctamente.');
-    }
-
-    // --- Método para simular sincronización (cámbialo por tu lógica real) ---
-    protected function sincronizarConSistemaExterno($operacion)
-    {
-        // Aquí va tu lógica real de sincronización.
-        // Simulación: éxito/fallo aleatorio (para pruebas)
-        return rand(0, 1) ? true : false;
-    }
-
-    public function edit(Operacion $operacion)
-    {
-        $productos = Producto::all();
-        $usuarios = Usuario::all();
-        return Inertia::render('operacion/Edit', [
-            'operacion' => $operacion,
-            'productos' => $productos,
-            'usuarios' => $usuarios
-        ]);
-    }
-
-    public function update(Request $request, Operacion $operacion)
-    {
-        $request->validate([
-            'tipo' => 'required|in:alta,baja,modificación',
-            'cantidad' => 'required|integer',
-            'fecha_hora' => 'required|date',
-            'producto_id' => 'required|exists:productos,producto_id',
-            'usuario_id' => 'required|exists:usuario,usuario_id'
-        ]);
-        $operacion->update($request->all());
-        return redirect()->route('operacion.index')->with('success', 'Operación actualizada correctamente.');
-    }
-
+    /**
+     * Elimina un registro de la bitácora
+     */
     public function destroy(Operacion $operacion)
     {
         $operacion->delete();
-        return redirect()->route('operacion.index')->with('success', 'Operación eliminada correctamente.');
+        return redirect()->route('admin.operaciones.index')->with('success', 'Operación eliminada correctamente.');
     }
 }
