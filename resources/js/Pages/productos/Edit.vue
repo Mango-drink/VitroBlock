@@ -20,13 +20,49 @@ const form = useForm({
   m2_por_caja: props.producto.m2_por_caja,
   stock_actual: props.producto.stock_actual,
   precio: props.producto.precio,
-  imagen_url: props.producto.imagen_url,
   categoria_id: props.producto.categoria_id,
   origen_id: props.producto.origen_id
 })
 
+// Manejar archivo nuevo de imagen
+function onFileChange(e) {
+  const file = e.target.files[0]
+  if (file) {
+    form.imagen_url = file
+    console.log('Nueva imagen seleccionada:', file)
+  }
+}
+
 const submit = () => {
-  form.put(route('admin.productos.update', { producto: props.producto.producto_id }))
+  // INCISO B) – Sanitizador de campos requeridos:
+  const camposRequeridos = [
+    'codigo', 'nombre', 'piezas_por_caja', 'm2_por_caja',
+    'stock_actual', 'precio', 'categoria_id', 'origen_id'
+  ]
+  camposRequeridos.forEach(key => {
+    if (form[key] === '' || form[key] === null || form[key] === undefined) {
+      form[key] = props.producto[key] ?? ''
+    }
+  })
+
+  // Limpia imagen_url si está vacío o nulo, para que no lo envíe
+  if (!form.imagen_url) {
+    delete form.imagen_url
+  }
+
+  // Arma opciones para form.put según haya imagen o no
+  const opciones = {
+    onSuccess: () => {},
+    onError: () => {},
+    preserveScroll: true,
+  }
+  if (form.imagen_url) {
+    opciones.forceFormData = true
+  }
+
+  console.log('FORMULARIO ANTES DE ENVIAR:', { ...form })
+
+  form.put(route('admin.productos.update', { producto: props.producto.producto_id }), opciones)
 }
 
 function goToIndex() {
@@ -80,32 +116,49 @@ function goToIndex() {
         </div>
         <div>
           <label for="piezas_por_caja" class="block mb-1 font-semibold">Piezas por caja:</label>
-          <input id="piezas_por_caja" v-model="form.piezas_por_caja" type="number" class="border rounded p-2 w-full" />
+          <input id="piezas_por_caja" v-model.number="form.piezas_por_caja" type="number" class="border rounded p-2 w-full" />
           <div v-if="form.errors.piezas_por_caja" class="text-red-500 mt-1">{{ form.errors.piezas_por_caja }}</div>
         </div>
         <div>
           <label for="m2_por_caja" class="block mb-1 font-semibold">m² por caja:</label>
-          <input id="m2_por_caja" v-model="form.m2_por_caja" type="number" step="0.01" class="border rounded p-2 w-full" />
+          <input id="m2_por_caja" v-model.number="form.m2_por_caja" type="number" step="0.01" class="border rounded p-2 w-full" />
           <div v-if="form.errors.m2_por_caja" class="text-red-500 mt-1">{{ form.errors.m2_por_caja }}</div>
         </div>
         <div>
           <label for="stock_actual" class="block mb-1 font-semibold">Stock actual:</label>
-          <input id="stock_actual" v-model="form.stock_actual" type="number" class="border rounded p-2 w-full" />
+          <input id="stock_actual" v-model.number="form.stock_actual" type="number" class="border rounded p-2 w-full" />
           <div v-if="form.errors.stock_actual" class="text-red-500 mt-1">{{ form.errors.stock_actual }}</div>
         </div>
         <div>
           <label for="precio" class="block mb-1 font-semibold">Precio:</label>
-          <input id="precio" v-model="form.precio" type="number" step="0.01" class="border rounded p-2 w-full" />
+          <input id="precio" v-model.number="form.precio" type="number" step="0.01" class="border rounded p-2 w-full" />
           <div v-if="form.errors.precio" class="text-red-500 mt-1">{{ form.errors.precio }}</div>
         </div>
+        <!-- Imagen actual -->
+        <div v-if="props.producto.imagen_url" class="mb-2">
+          <label class="block mb-1 font-semibold">Imagen actual:</label>
+          <img
+            :src="`/storage/${props.producto.imagen_url}`"
+            alt="Imagen actual del producto"
+            class="h-28 rounded shadow border mb-2"
+            style="object-fit:contain;max-width:180px;"
+          />
+        </div>
+        <!-- Nueva imagen -->
         <div>
-          <label for="imagen_url" class="block mb-1 font-semibold">Imagen (URL):</label>
-          <input id="imagen_url" v-model="form.imagen_url" type="text" class="border rounded p-2 w-full" />
+          <label for="imagen_url" class="block mb-1 font-semibold">Nueva Imagen (opcional):</label>
+          <input
+            id="imagen_url"
+            type="file"
+            accept="image/*"
+            class="border rounded p-2 w-full"
+            @change="onFileChange"
+          />
           <div v-if="form.errors.imagen_url" class="text-red-500 mt-1">{{ form.errors.imagen_url }}</div>
         </div>
         <div>
           <label for="categoria_id" class="block mb-1 font-semibold">Categoría:</label>
-          <select id="categoria_id" v-model="form.categoria_id" class="border rounded p-2 w-full">
+          <select id="categoria_id" v-model.number="form.categoria_id" class="border rounded p-2 w-full">
             <option value="">Selecciona una categoría</option>
             <option v-for="cat in props.categorias" :key="cat.categoria_id" :value="cat.categoria_id">{{ cat.nombre }}</option>
           </select>
@@ -113,7 +166,7 @@ function goToIndex() {
         </div>
         <div>
           <label for="origen_id" class="block mb-1 font-semibold">Origen:</label>
-          <select id="origen_id" v-model="form.origen_id" class="border rounded p-2 w-full">
+          <select id="origen_id" v-model.number="form.origen_id" class="border rounded p-2 w-full">
             <option value="">Selecciona un origen</option>
             <option v-for="ori in props.origenes" :key="ori.origen_id" :value="ori.origen_id">{{ ori.pais }}</option>
           </select>

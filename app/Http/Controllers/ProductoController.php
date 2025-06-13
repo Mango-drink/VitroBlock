@@ -1,5 +1,6 @@
 <?php
 
+
 namespace App\Http\Controllers;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Producto;
@@ -8,6 +9,8 @@ use App\Models\Origen;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Traits\RegistraOperacion; // Asegúrate de que este trait esté correctamente definido
+use Illuminate\Support\Facades\Log;
+
 
 class ProductoController extends Controller
 {
@@ -51,6 +54,8 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
+        Log::info('Update de producto', $request->all());
+        
         $validated = $request->validate([
             'codigo' => 'required|string|max:255',
             'nombre' => 'required|string|max:255',
@@ -117,22 +122,41 @@ class ProductoController extends Controller
      */
     public function update(Request $request, Producto $producto)
     {
+        Log::info('Request recibido en update:', $request->all());
+
         $validated = $request->validate([
-            'codigo' => 'required|string|max:255',
-            'nombre' => 'required|string|max:255',
+            'codigo' => 'sometimes|required|string|max:255',
+            'nombre' => 'sometimes|required|string|max:255',
             'descripcion' => 'nullable|string',
             'diseño' => 'nullable|string',
             'color' => 'nullable|string',
             'dimensiones' => 'nullable|string',
-            'piezas_por_caja' => 'required|integer|min:1',
-            'm2_por_caja' => 'required|numeric|min:0',
-            'stock_actual' => 'required|integer|min:0',
-            'precio' => 'required|numeric|min:0',
+            'piezas_por_caja' => 'sometimes|required|integer|min:1',
+            'm2_por_caja' => 'sometimes|required|numeric|min:0',
+            'stock_actual' => 'sometimes|required|integer|min:0',
+            'precio' => 'sometimes|required|numeric|min:0',
             'imagen_url' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
-            'categoria_id' => 'required|exists:categorias,categoria_id',
-            'origen_id' => 'required|exists:origenes,origen_id',
+            'categoria_id' => 'sometimes|required|exists:categorias,categoria_id',
+            'origen_id' => 'sometimes|required|exists:origenes,origen_id',
         ]);
+
+        // Si subieron una nueva imagen:
+        if ($request->hasFile('imagen_url')) {
+            // Borra la imagen anterior si existe
+            if ($producto->imagen_url && Storage::disk('public')->exists($producto->imagen_url)) {
+                Storage::disk('public')->delete($producto->imagen_url);
+            }
+            // Guarda la nueva imagen y actualiza el path
+            $path = $request->file('imagen_url')->store('imagenes', 'public');
+            $validated['imagen_url'] = $path;
+        } else {
+            // No se subió nueva imagen: elimina del validated para NO sobreescribir la actual
+            unset($validated['imagen_url']);
+        }
+
         $producto->update($validated);
+        Log::info('Producto actualizado:', $producto->fresh()->toArray());
+
 
         // Bitácora: registro de modificación
         $this->registraOperacion(
@@ -145,6 +169,7 @@ class ProductoController extends Controller
 
         return redirect()->route('admin.productos.index')->with('success', 'Producto actualizado correctamente.');
     }
+
 
 
     /**

@@ -39,6 +39,11 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     ]);
     Route::resource('usuarios', UsuarioController::class);
     Route::resource('operacion', OperacionController::class);
+    // ¡Quita el "admin." del name dentro del grupo!
+    Route::get('operacion-export', [OperacionController::class, 'exportExcel'])->name('operacion.export');
+    Route::get('operacion-export-pdf', [OperacionController::class, 'exportPdf'])->name('operacion.exportPdf');
+
+
 });
 
 // ----------------------------------------

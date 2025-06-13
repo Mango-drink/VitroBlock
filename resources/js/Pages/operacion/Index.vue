@@ -1,6 +1,6 @@
 <script setup>
 import { router, usePage } from '@inertiajs/vue3'
-import { ref, watch } from 'vue'
+import { ref } from 'vue'
 import { route } from 'ziggy-js'
 import { useToast } from 'vue-toastification'
 import { ListChecks, Trash2, ArrowLeft } from 'lucide-vue-next'
@@ -21,9 +21,8 @@ const tipo = ref(props.filtros.tipo || '')
 const entidad = ref(props.filtros.entidad || '')
 const usuario_id = ref(props.filtros.usuario_id || '')
 
-// Cuando se cambia un filtro, recarga la tabla
 function filtrar() {
-  router.get(route('admin.operaciones.index'), {
+  router.get(route('admin.operacion.index'), {
     search: search.value,
     tipo: tipo.value,
     entidad: entidad.value,
@@ -33,7 +32,7 @@ function filtrar() {
 
 function destroy(id) {
   if (confirm('¿Eliminar este registro del historial?')) {
-    router.delete(route('admin.operaciones.destroy', { operacion: id }), {
+    router.delete(route('admin.operacion.destroy', { operacion: id }), {
       onSuccess: () => toast.success('Operación eliminada correctamente.'),
       onError: () => toast.error('No se pudo eliminar la operación.')
     })
@@ -44,7 +43,6 @@ function goToDashboard() {
   router.visit(route('admin.dashboard'))
 }
 
-// Para paginación
 function cambiarPagina(url) {
   if (url) {
     router.visit(url, { preserveState: true, replace: true })
@@ -68,31 +66,59 @@ function cambiarPagina(url) {
       </div>
     </div>
 
-    <!-- Filtros -->
-    <div class="bg-white rounded-2xl shadow p-4 mb-4 flex flex-col md:flex-row gap-4">
-      <input
-        v-model="search"
-        @keyup.enter="filtrar"
-        type="text"
-        placeholder="Buscar en descripción..."
-        class="border px-3 py-2 rounded-lg w-full md:w-1/4"
-      />
-      <select v-model="tipo" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
-        <option value="">Todos los tipos</option>
-        <option v-for="t in props.tipos" :key="t" :value="t">{{ t }}</option>
-      </select>
-      <select v-model="entidad" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
-        <option value="">Todas las entidades</option>
-        <option v-for="e in props.entidades" :key="e" :value="e">{{ e }}</option>
-      </select>
-      <select v-model="usuario_id" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
-        <option value="">Todos los usuarios</option>
-        <option v-for="u in props.usuarios" :key="u.usuario_id" :value="u.usuario_id">{{ u.nombre }}</option>
-      </select>
-      <button
-        @click="filtrar"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
-      >Filtrar</button>
+    <!-- Filtros y exportar -->
+    <div class="bg-white rounded-2xl shadow p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+      <div class="flex flex-col md:flex-row gap-4 w-full">
+        <input
+          v-model="search.value"
+          @keyup.enter="filtrar"
+          type="text"
+          placeholder="Buscar en descripción..."
+          class="border px-3 py-2 rounded-lg w-full md:w-1/4"
+        />
+        <select v-model="tipo.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+          <option value="">Todos los tipos</option>
+          <option v-for="t in props.tipos" :key="t" :value="t">{{ t }}</option>
+        </select>
+        <select v-model="entidad.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+          <option value="">Todas las entidades</option>
+          <option v-for="e in props.entidades" :key="e" :value="e">{{ e }}</option>
+        </select>
+        <select v-model="usuario_id.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+          <option value="">Todos los administradores</option>
+          <option v-for="u in props.usuarios" :key="u.usuario_id" :value="u.usuario_id">{{ u.nombre }}</option>
+        </select>
+        <button
+          @click="filtrar"
+          class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+        >Filtrar</button>
+      </div>
+      <div class="flex gap-2 mt-2 md:mt-0">
+        <a
+          :href="route('admin.operacion.export', {
+            search: search.value,
+            tipo: tipo.value,
+            entidad: entidad.value,
+            usuario_id: usuario_id.value
+          })"
+          target="_blank"
+          class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+        >
+          Exportar Excel
+        </a>
+        <a
+          :href="route('admin.operacion.exportPdf', {
+            search: search.value,
+            tipo: tipo.value,
+            entidad: entidad.value,
+            usuario_id: usuario_id.value
+          })"
+          target="_blank"
+          class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"
+        >
+          Exportar PDF
+        </a>
+      </div>
     </div>
 
     <!-- Tabla -->
