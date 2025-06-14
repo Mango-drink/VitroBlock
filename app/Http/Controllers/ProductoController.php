@@ -123,6 +123,8 @@ class ProductoController extends Controller
     public function update(Request $request, Producto $producto)
     {
         Log::info('Request recibido en update:', $request->all());
+        Log::info('¿Archivo imagen_url recibido?', [$request->hasFile('imagen_url')]);
+        Log::info('Archivo imagen_url:', [$request->file('imagen_url')]);
 
         $validated = $request->validate([
             'codigo' => 'sometimes|required|string|max:255',
@@ -139,6 +141,8 @@ class ProductoController extends Controller
             'categoria_id' => 'sometimes|required|exists:categorias,categoria_id',
             'origen_id' => 'sometimes|required|exists:origenes,origen_id',
         ]);
+        Log::info('¿Archivo imagen_url recibido?', [$request->hasFile('imagen_url')]);
+        Log::info('Archivo imagen_url:', [$request->file('imagen_url')]);
 
         // Si subieron una nueva imagen:
         if ($request->hasFile('imagen_url')) {

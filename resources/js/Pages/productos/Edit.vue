@@ -21,7 +21,8 @@ const form = useForm({
   stock_actual: props.producto.stock_actual,
   precio: props.producto.precio,
   categoria_id: props.producto.categoria_id,
-  origen_id: props.producto.origen_id
+  origen_id: props.producto.origen_id,
+  imagen_url: null // Inicialmente no hay imagen
 })
 
 // Manejar archivo nuevo de imagen
@@ -29,12 +30,12 @@ function onFileChange(e) {
   const file = e.target.files[0]
   if (file) {
     form.imagen_url = file
-    console.log('Nueva imagen seleccionada:', file)
+    console.log('Tipo de imagen_url:', typeof form.imagen_url, form.imagen_url)
   }
 }
 
 const submit = () => {
-  // INCISO B) – Sanitizador de campos requeridos:
+  // Sanitizador de campos requeridos:
   const camposRequeridos = [
     'codigo', 'nombre', 'piezas_por_caja', 'm2_por_caja',
     'stock_actual', 'precio', 'categoria_id', 'origen_id'
@@ -45,25 +46,36 @@ const submit = () => {
     }
   })
 
-  // Limpia imagen_url si está vacío o nulo, para que no lo envíe
-  if (!form.imagen_url) {
-    delete form.imagen_url
+  // Si imagen_url está vacío, null o NO es un File (o sea, no se seleccionó nueva imagen), bórralo
+  if (!form.imagen_url || !(form.imagen_url instanceof File)) {
+    form.imagen_url = null
   }
 
-  // Arma opciones para form.put según haya imagen o no
+  // Detecta si hay una nueva imagen
+  const tieneImagenNueva = form.imagen_url instanceof File
+
+  // Usa 'post' si hay imagen nueva, 'put' si no
+  const method = tieneImagenNueva ? 'post' : 'put'
+
+  // Opciones: sólo forceFormData si hay nueva imagen
   const opciones = {
     onSuccess: () => {},
     onError: () => {},
     preserveScroll: true,
-  }
-  if (form.imagen_url) {
-    opciones.forceFormData = true
+    ...(tieneImagenNueva ? { forceFormData: true } : {})
   }
 
   console.log('FORMULARIO ANTES DE ENVIAR:', { ...form })
+  console.log('form.imagen_url:', form.imagen_url, typeof form.imagen_url)
 
-  form.put(route('admin.productos.update', { producto: props.producto.producto_id }), opciones)
+  // Aquí viene la diferencia: usa form[method](...) en vez de form.put(...)
+  form[method](
+    route('admin.productos.update', { producto: props.producto.producto_id }),
+    opciones
+  )
 }
+
+
 
 function goToIndex() {
   router.visit(route('admin.productos.index'))

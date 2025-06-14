@@ -6,7 +6,8 @@ import { useToast } from 'vue-toastification'
 import { Users, Edit, Trash2, Plus, ArrowLeft, User } from 'lucide-vue-next'
 
 const props = defineProps({
-  usuarios: Array
+  usuarios: Array,
+  roles: Array
 })
 
 const toast = useToast()
@@ -18,17 +19,30 @@ if (page.props.flash && page.props.flash.success) {
 
 // === FILTRO POR INICIAL ===
 const selectedLetter = ref('') // '' para ver todos
+const busquedaNombre = ref('')
+const filtroRol = ref('')
 
-const letras = computed(() => {
+/*const letras = computed(() => {
   // Genera el conjunto de letras únicas con las que inicia el nombre de algún usuario
   return [...new Set(props.usuarios.map(u => u.nombre[0]?.toUpperCase()))].sort()
+})*/
+const rolesUnicos = computed(() => {
+  const mapa = {}
+  props.usuarios.forEach(u => {
+    if (u.rol) {
+      mapa[u.rol.rol_id] = u.rol.nombre
+    }
+  })
+  // Retorna array de objetos {rol_id, nombre}
+  return Object.entries(mapa).map(([rol_id, nombre]) => ({ rol_id, nombre }))
 })
 
 const usuariosFiltrados = computed(() => {
-  if (!selectedLetter.value) return props.usuarios
-  return props.usuarios.filter(u =>
-    u.nombre && u.nombre[0]?.toUpperCase() === selectedLetter.value
-  )
+  return props.usuarios
+    .filter(u => !busquedaNombre.value || u.nombre.toLowerCase().includes(busquedaNombre.value.toLowerCase()))
+    .filter(u => !filtroRol.value || (u.rol && u.rol.rol_id == filtroRol.value))
+    // Si quieres también aplicar filtro por inicial, puedes agregarlo aquí
+    .filter(u => !selectedLetter.value || u.nombre[0]?.toUpperCase() === selectedLetter.value)
 })
 
 // Funciones originales...
@@ -75,25 +89,19 @@ function goToEdit(id) {
       </div>
     </div>
 
-    <!-- FILTRO POR INICIAL -->
+    <!-- FILTRO POR NOMBRE Y ROL -->
     <div class="flex items-center mb-4 gap-3">
-      <span class="font-semibold">Filtrar por letra:</span>
-      <button
-        class="px-2 py-1 rounded transition"
-        :class="selectedLetter === '' ? 'bg-blue-600 text-white font-bold' : 'bg-gray-100 text-gray-700 hover:bg-blue-200'"
-        @click="selectedLetter = ''"
-      >
-        Todos
-      </button>
-      <button
-        v-for="letra in letras"
-        :key="letra"
-        class="px-2 py-1 rounded transition"
-        :class="selectedLetter === letra ? 'bg-blue-600 text-white font-bold' : 'bg-gray-100 text-gray-700 hover:bg-blue-200'"
-        @click="selectedLetter = letra"
-      >
-        {{ letra }}
-      </button>
+      <input
+        v-model="busquedaNombre"
+        @input="aplicarFiltros"
+        type="text"
+        placeholder="Buscar por nombre..."
+        class="border px-3 py-2 rounded w-60"
+      />
+      <select v-model="filtroRol" @change="aplicarFiltros" class="border px-3 py-2 rounded w-60">
+        <option value="">Todos los roles</option>
+        <option v-for="rol in rolesUnicos" :key="rol.rol_id" :value="rol.rol_id">{{ rol.nombre }}</option>
+      </select>
     </div>
 
     <div class="bg-white shadow rounded-2xl overflow-hidden border">

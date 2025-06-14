@@ -34,6 +34,14 @@ class OperacionController extends Controller
             $query->where('usuario_id', $request->usuario_id);
         }
 
+        // filtros de fechas**
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_inicio);
+        }
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_fin);
+        }
+
         $operaciones = $query->paginate(15)->withQueryString();
 
         $tipos     = Operacion::select('tipo')->distinct()->pluck('tipo');
@@ -43,10 +51,12 @@ class OperacionController extends Controller
         return Inertia::render('operacion/Index', [ // O 'operaciones/Index'
             'operaciones' => $operaciones,
             'filtros'     => [
-                'tipo'      => $request->tipo,
-                'entidad'   => $request->entidad,
-                'search'    => $request->search,
-                'usuario_id'=> $request->usuario_id,
+                'tipo'        => $request->tipo,
+                'entidad'     => $request->entidad,
+                'search'      => $request->search,
+                'usuario_id'  => $request->usuario_id,
+                'fecha_inicio'=> $request->fecha_inicio, // Para que el filtro persista en la vista
+                'fecha_fin'   => $request->fecha_fin,
             ],
             'tipos'     => $tipos,
             'entidades' => $entidades,
@@ -54,35 +64,83 @@ class OperacionController extends Controller
         ]);
     }
 
+
     /**
      * Elimina un registro de la bitácora
      */
     public function destroy(Operacion $operacion)
     {
         $operacion->delete();
-        return redirect()->route('admin.operaciones.index')->with('success', 'Operación eliminada correctamente.');
+        return redirect()->route('admin.operacion.index')->with('success', 'Operación eliminada correctamente.');
     }
 
     public function exportExcel(Request $request)
     {
-        $filters = $request->only(['tipo', 'entidad', 'search', 'usuario_id']);
-        return Excel::download(new OperacionesExport($filters), 'bitacora-operaciones.xlsx');
+        $query = \App\Models\Operacion::query();
+
+        // Filtros básicos
+        if ($request->filled('search')) {
+            $query->where('descripcion', 'like', '%' . $request->search . '%');
+        }
+        if ($request->filled('tipo')) {
+            $query->where('tipo', $request->tipo);
+        }
+        if ($request->filled('entidad')) {
+            $query->where('entidad', $request->entidad);
+        }
+        if ($request->filled('usuario_id')) {
+            $query->where('usuario_id', $request->usuario_id);
+        }
+
+        // Filtro por fechas si quieres implementarlo (agrega campos en el front si los usas)
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_inicio);
+        }
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_fin);
+        }
+
+        $operaciones = $query->orderByDesc('fecha_hora')->get();
+
+        // Aquí tu lógica de exportación (por ejemplo, usando Maatwebsite\Excel)
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\OperacionesExport($operaciones),
+            'operaciones_filtradas.xlsx'
+        );
     }
 
-    public function exportPdf(Request $request)
+
+        public function exportPdf(Request $request)
     {
-        $query = Operacion::with('usuario')->orderBy('fecha_hora', 'desc');
-        if ($request->filled('tipo')) $query->where('tipo', $request->tipo);
-        if ($request->filled('entidad')) $query->where('entidad', $request->entidad);
-        if ($request->filled('search')) $query->where('descripcion', 'like', '%' . $request->search . '%');
-        if ($request->filled('usuario_id')) $query->where('usuario_id', $request->usuario_id);
+        $query = \App\Models\Operacion::query();
 
-        $operaciones = $query->get();
+        // Filtros igual que en el Excel
+        if ($request->filled('search')) {
+            $query->where('descripcion', 'like', '%' . $request->search . '%');
+        }
+        if ($request->filled('tipo')) {
+            $query->where('tipo', $request->tipo);
+        }
+        if ($request->filled('entidad')) {
+            $query->where('entidad', $request->entidad);
+        }
+        if ($request->filled('usuario_id')) {
+            $query->where('usuario_id', $request->usuario_id);
+        }
 
-        $pdf = Pdf::loadView('admin.exports.operaciones_pdf', [
-            'operaciones' => $operaciones
-        ]);
-        return $pdf->download('bitacora-operaciones.pdf');
+        // Filtro por fechas opcional
+        if ($request->filled('fecha_inicio')) {
+            $query->whereDate('fecha_hora', '>=', $request->fecha_inicio);
+        }
+        if ($request->filled('fecha_fin')) {
+            $query->whereDate('fecha_hora', '<=', $request->fecha_fin);
+        }
+
+        $operaciones = $query->orderByDesc('fecha_hora')->get();
+
+        // Ejemplo con DomPDF, ajusta tu view y variables
+        $pdf = PDF::loadView('admin.exports.operaciones_pdf', compact('operaciones'));
+        return $pdf->download('operaciones_filtradas.pdf');
     }
 
 }

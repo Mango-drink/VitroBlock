@@ -5,6 +5,8 @@ import { route } from 'ziggy-js'
 import { useToast } from 'vue-toastification'
 import { ListChecks, Trash2, ArrowLeft } from 'lucide-vue-next'
 
+
+
 const props = defineProps({
   operaciones: Object,   // paginadas
   filtros: Object,
@@ -12,6 +14,7 @@ const props = defineProps({
   entidades: Array,
   usuarios: Array
 })
+console.log('Operaciones recibidas:', props.operaciones);
 
 const toast = useToast()
 const page = usePage()
@@ -20,14 +23,20 @@ const search = ref(props.filtros.search || '')
 const tipo = ref(props.filtros.tipo || '')
 const entidad = ref(props.filtros.entidad || '')
 const usuario_id = ref(props.filtros.usuario_id || '')
+const fechaInicio = ref(props.filtros.fecha_inicio || '')
+const fechaFin = ref(props.filtros.fecha_fin || '')
 
 function filtrar() {
-  router.get(route('admin.operacion.index'), {
+  const filtros = {
     search: search.value,
     tipo: tipo.value,
     entidad: entidad.value,
     usuario_id: usuario_id.value,
-  }, { preserveState: true, replace: true })
+  }
+  if (fechaInicio.value) filtros.fecha_inicio = fechaInicio.value
+  if (fechaFin.value) filtros.fecha_fin = fechaFin.value
+
+  router.get(route('admin.operacion.index'), filtros, { preserveState: true, replace: true })
 }
 
 function destroy(id) {
@@ -76,18 +85,31 @@ function cambiarPagina(url) {
           placeholder="Buscar en descripción..."
           class="border px-3 py-2 rounded-lg w-full md:w-1/4"
         />
-        <select v-model="tipo.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+        <select v-model="tipo" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/4">
           <option value="">Todos los tipos</option>
           <option v-for="t in props.tipos" :key="t" :value="t">{{ t }}</option>
         </select>
-        <select v-model="entidad.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+        <select v-model="entidad" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/4">
           <option value="">Todas las entidades</option>
           <option v-for="e in props.entidades" :key="e" :value="e">{{ e }}</option>
         </select>
-        <select v-model="usuario_id.value" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/6">
+        <select v-model="usuario_id" @change="filtrar" class="border px-3 py-2 rounded-lg w-full md:w-1/4">
           <option value="">Todos los administradores</option>
           <option v-for="u in props.usuarios" :key="u.usuario_id" :value="u.usuario_id">{{ u.nombre }}</option>
         </select>
+        <!-- Inputs de fechas -->
+        <input
+          type="date"
+          v-model="fechaInicio"
+          placeholder="Fecha inicio"
+          class="border px-3 py-2 rounded-lg w-full md:w-1/6"
+        />
+        <input
+          type="date"
+          v-model="fechaFin"
+          placeholder="Fecha fin"
+          class="border px-3 py-2 rounded-lg w-full md:w-1/6"
+        />
         <button
           @click="filtrar"
           class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -99,7 +121,9 @@ function cambiarPagina(url) {
             search: search.value,
             tipo: tipo.value,
             entidad: entidad.value,
-            usuario_id: usuario_id.value
+            usuario_id: usuario_id.value,
+            ...(fechaInicio.value ? { fecha_inicio: fechaInicio.value } : {}),
+            ...(fechaFin.value ? { fecha_fin: fechaFin.value } : {})
           })"
           target="_blank"
           class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -111,7 +135,9 @@ function cambiarPagina(url) {
             search: search.value,
             tipo: tipo.value,
             entidad: entidad.value,
-            usuario_id: usuario_id.value
+            usuario_id: usuario_id.value,
+            ...(fechaInicio.value ? { fecha_inicio: fechaInicio.value } : {}),
+            ...(fechaFin.value ? { fecha_fin: fechaFin.value } : {})
           })"
           target="_blank"
           class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold transition"
@@ -124,6 +150,7 @@ function cambiarPagina(url) {
     <!-- Tabla -->
     <div class="bg-white shadow rounded-2xl overflow-x-auto border">
       <table class="min-w-full text-gray-700">
+        <!-- CABECERA -->
         <thead class="bg-blue-50">
           <tr>
             <th class="px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider">ID</th>
@@ -165,6 +192,7 @@ function cambiarPagina(url) {
         </tbody>
       </table>
     </div>
+
 
     <!-- Paginación -->
     <div class="flex justify-center mt-6 gap-2" v-if="props.operaciones.links">

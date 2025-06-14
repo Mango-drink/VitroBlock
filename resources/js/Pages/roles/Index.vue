@@ -17,7 +17,7 @@ if (page.props.flash && page.props.flash.success) {
 
 function destroy(id) {
   if (confirm('¿Eliminar este rol?')) {
-    router.delete(route('roles.destroy', { rol: id }), {
+    router.delete(route('admin.roles.destroy', { rol: id }), {
       onSuccess: () => toast.success('Rol eliminado exitosamente.'),
       onError: () => toast.error('No se pudo eliminar el rol.')
     })

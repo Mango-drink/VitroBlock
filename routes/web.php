@@ -30,6 +30,8 @@ Route::middleware(['auth', 'is_admin'])->prefix('admin')->name('admin.')->group(
     })->name('dashboard');
 
     Route::resource('productos', ProductoController::class);
+    Route::match(['put', 'post'], 'productos/{producto}', [ProductoController::class, 'update'])->name('productos.update');
+
     Route::resource('categorias', CategoriaController::class);
     Route::resource('origenes', OrigenController::class)->parameters([
         'origenes' => 'origen'
